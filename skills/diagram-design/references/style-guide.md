@@ -14,21 +14,20 @@ To generate your own from a website URL, see [`onboarding.md`](onboarding.md).
 
 Every token is referred to by **semantic role**, not by its hex value. Type references (`type-*.md`) and SKILL.md say `accent`, not `#bf4520`.
 
-| Role | Purpose | Default (light) | Default (dark) |
+| Role | Purpose | Custom (light) | Custom (dark) |
 |---|---|---|---|
-| `paper` | Page background, default node fill | `#f5f5f5` (white-smoke) | `#2d3142` (jet-black) |
-| `paper-2` | Diagram container bg, secondary fill | `#ececec` | `#393e53` |
-| `ink` | Primary text, primary stroke | `#2d3142` (jet-black) | `#f5f5f5` (white-smoke) |
-| `ink-strong` | High-contrast text on warm accent fills | `#111111` | `#111111` |
-| `muted` | Secondary text, default arrow stroke | `#4f5d75` (blue-slate) | `#bfc0c0` (silver) |
-| `soft` | Sublabels, boundary labels | `#5a6580` | `#949eb2` |
-| `rule` | Hairline borders | `rgba(45,49,66,0.12)` | `rgba(245,245,245,0.12)` |
-| `rule-solid` | Stronger borders, baselines | `#bfc0c0` (silver) | `rgba(191,192,192,0.25)` |
-| `accent` | Focal / 1–2 max per diagram | `#bf4520` (burnt-tangerine) | `#f08a59` |
-| `accent-tint` | Fill for accent-bordered boxes | `rgba(191,69,32,0.08)` | `rgba(240,138,89,0.10)` |
-| `link` | HTTP/API calls, external arrows | `#2e5aa8` | `#739fdf` |
+| `paper` | Page background, default node fill | `#f5efe0` (brunoping cream) | `#1e1b18` |
+| `paper-2` | Diagram container bg, secondary fill | `#dcd7ca` (brunoping panel) | `#2a2521` |
+| `ink` | Primary text, primary stroke | `#000000` | `#f5efe0` |
+| `muted` | Secondary text, default arrow stroke | `#6d6d6d` | `#b8b0a4` |
+| `soft` | Sublabels, boundary labels | `#8c867e` | `#8f887e` |
+| `rule` | Hairline borders | `rgba(0,0,0,0.12)` | `rgba(245,239,224,0.12)` |
+| `rule-solid` | Stronger borders, baselines | `#dcd7ca` | `rgba(220,215,202,0.25)` |
+| `accent` | Focal / 1–2 max per diagram | `#cd2653` (brunoping coral) | `#e05a7d` |
+| `accent-tint` | Fill for accent-bordered boxes | `rgba(205,38,83,0.08)` | `rgba(224,90,125,0.12)` |
+| `link` | HTTP/API calls, external arrows | `#9a3412` (rust) | `#c06a45` |
 
-> **Brand palette source:** this skin maps to a five-color brand palette: `jet-black #2d3142`, `silver #bfc0c0`, `white-smoke #f5f5f5`, `atomic-tangerine`, `blue-slate #4f5d75`. The light `accent` is not the raw brand tangerine. Raw atomic-tangerine reads 2.86:1 on `paper`, too faint for an arrow or a label, so the skin uses `#bf4520`, the same hue darkened until it clears 4.5:1 as text. The `soft`, `rule`, and `link` tokens are derived (a darker slate, ink at opacity, and a saturated variant in the blue-slate hue family) to cover roles the brand palette doesn't name directly. Every derived value is held to the contrast contract below.
+> **Brand palette source:** this skin maps to brunoping.com (Twenty Twenty theme) — warm cream `#f5efe0`, panel `#dcd7ca`, ink `#000000`, muted `#6d6d6d`, coral accent `#cd2653`. The `soft`, `rule`, and `link` tokens are derived (warm grey, ink-at-opacity, and a rust variant) to cover roles the brand palette doesn't name directly. Product blue `#2563eb` is explicitly NOT part of this brand.
 
 ### Contrast contract
 
@@ -48,7 +47,7 @@ Every token must clear the threshold for each role it plays, against the backgro
 
 ### Inversion rule (light → dark)
 
-Any `rgba(45,49,66, X)` in light becomes `rgba(245,245,245, X)` in dark. Same opacities, RGB flipped. The accent gets a slight hue-shift brighter to read on dark paper.
+Any `rgba(0,0,0, X)` in light becomes `rgba(245,239,224, X)` in dark. Same opacities, RGB flipped. The accent gets a slight hue-shift brighter to read on dark paper.
 
 ### Series palette (multi-series chart types only)
 
@@ -89,7 +88,7 @@ A self-contained palette for the terminal-window primitive (see [primitive-termi
 | Role | Family | Size | Weight | Usage |
 |---|---|---|---|---|
 | `title` | Instrument Serif | 1.75rem | 400 | Page H1 |
-| `node-name` | Geist (sans) | 12px | 600 | Human-readable labels |
+| `node-name` | Inter (sans) | 12px | 600 | Human-readable labels |
 | `sublabel` | Geist Mono | 9px | 400 | Port, protocol, URL, field type |
 | `eyebrow` | Geist Mono | 7–8px | 500, tracked 0.18em, uppercase | Type tags, axis labels |
 | `arrow-label` | Geist Mono | 8px | 400, tracked 0.06em | Arrow annotations |
@@ -98,51 +97,10 @@ A self-contained palette for the terminal-window primitive (see [primitive-termi
 ### Font stack
 
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 ```
 
-### Font source
-
-The font source decides whether a diagram makes any network request. It is a skin setting, so a saved profile carries it too.
-
-Font source: `web`
-
-| Value | What ships | Network |
-|---|---|---|
-| `web` (default) | The Google Fonts `<link>` above; text renders in Instrument Serif, Geist, and Geist Mono | One stylesheet request to `fonts.googleapis.com`, plus the font files |
-| `system` | No font `<link>`; every family stack falls through to the platform's own serif, sans, and monospace faces | None |
-
-Use `system` when the user asks for offline output, system fonts, or no Google Fonts, or when this line says `system`. In `system` mode:
-
-- Omit the font `<link>` (and the export `@import`) entirely. Keep every `font-family` stack as written: each one already ends in a generic family (`serif`, `system-ui, sans-serif`, `ui-monospace, monospace`), so a viewer who has Geist installed still gets it and everyone else gets their system face.
-- Fallback faces have different metrics from Geist, so keep the 8px label padding intact rather than trimming boxes to the Geist measurement.
-- Export with `python3 scripts/export_svg.py <file> --system-fonts`, and verify with `python3 scripts/self_check.py --offline <file>`, which fails if the Google Fonts link is still present.
-
-The render linter's default run (`lint-render.py` with network blocked) measures exactly this fallback rendering, so every shipped template and example is already checked in system-font mode.
-
-To keep the editorial faces with no network at all, install Instrument Serif, Geist, and Geist Mono locally (all three are SIL Open Font License) and use `system`: the stacks resolve to the installed faces first.
-
-### Korean labels
-
-Geist and Instrument Serif carry no Hangul. A Korean `<text>` element extends its own family — never swap the skin:
-
-```svg
-<text font-family="'Geist', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">결제 서비스</text>
-```
-
-Both Noto faces ship in the font link above, so the web font resolves before any locally installed one and the same file renders identically on macOS, Windows, and a reviewer's browser. The local families follow it for offline viewing. Page titles need the serif equivalent — `'Instrument Serif', 'Noto Serif KR', serif` — or a mixed Latin/Korean title resolves Hangul through the platform's generic serif and the two halves disagree. Google's `css2` endpoint slices Korean by unicode-range, so a diagram with a handful of Korean labels downloads only the slices it touches. The four templates carry both faces because a new diagram may contain Hangul; the shipped Latin-only examples keep the shorter link, since a file with no Hangul has nothing to resolve.
-
-**Width budget.** Measure per character, not per script: **every Unicode wide or full-width character costs 1em, every other character costs its face's Latin advance** (0.60em sans, 0.62em mono), and nonspacing/enclosing marks cost nothing. Sum over the string and multiply by the font size for the text width, then add padding and round the box up to the next multiple of 4. `verify-treemap.py` enforces exactly this text width for treemap cell labels. The skill's `scripts/self_check.py` applies the same width, plus any letter-spacing, to text inside a visible box of any type, and fails a label that runs more than 0.3em past the box edge. Padding, rounding, and labels on paper-coloured arrow-label masks are not checked, so those stay yours to hold.
-
-Counting by script is the trap. `주문 v2.1` is two full-width syllables and five narrow characters; a formula that tallies Hangul, Latin letters, and spaces silently drops `2`, `.`, and `1` and sizes the box for four of its seven characters. Every rendered character costs something — measure per character, never per script.
-
-Three rules follow from Hangul metrics:
-
-- **Sublabels stay Latin.** Ports, protocols, field types, and URLs are Latin anyway — keep `Geist Mono` there and don't translate them. Hangul in a 9px mono sublabel is unreadable and has no mono face to fall back to.
-- **Floor of 12px.** Hangul goes muddy below 12px. If a Korean name doesn't fit at 12px, cut the name — don't shrink the type.
-- **Arrow labels, eyebrows, and legend text switch register.** Those slots are 7–8px Geist Mono, uppercase and tracked, which Hangul has neither a face nor legibility for. A Korean label in one of those slots becomes 12px sans at weight 500 with no tracking and no uppercase transform, and its mask rect grows to match (16px tall, width from the budget above, still rounded to a multiple of 4). Latin labels in the same diagram keep the mono treatment.
-
-**Load-bearing rule:** Mono is for *technical* content (ports, commands, URLs, field types). Names go in Geist sans. Page title is Instrument Serif. Italic Instrument Serif is reserved for annotation callouts (see [primitive-annotation.md](primitive-annotation.md)). **Never JetBrains Mono** as a blanket "dev" font.
+**Load-bearing rule:** Mono is for *technical* content (ports, commands, URLs, field types). Names go in Inter sans (brunoping body font). Page title is Instrument Serif. Italic Instrument Serif is reserved for annotation callouts (see [primitive-annotation.md](primitive-annotation.md)). **Never JetBrains Mono** as a blanket "dev" font.
 
 ### Traditional Chinese labels
 

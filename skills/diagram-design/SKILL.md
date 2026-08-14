@@ -199,7 +199,18 @@ Type-reference snippets write roles as placeholders: `{ink}`, `{ink @ 0.40}` for
 
 **Non-Latin labels** — extend the family: [Korean](references/style-guide.md#korean-labels), [Chinese](references/style-guide.md#traditional-chinese-labels), [Cyrillic](references/style-guide.md#cyrillic-labels).
 
-**Mono is for technical content only** — never as a blanket "dev" font, and never JetBrains Mono.
+- **Title** — Instrument Serif, 1.75rem, 400 — H1 only
+- **Node name** — Inter (sans), 12px, 600 — human-readable labels
+- **Sublabel** — Geist Mono, 9px — ports, URLs, field types
+- **Eyebrow / tag** — Geist Mono, 7–8px, uppercase, tracked — type tags, axis labels
+- **Arrow label** — Geist Mono, 8px — annotation on arrows
+- **Editorial aside** — Instrument Serif *italic*, 14px — callouts only
+
+**Mono is for technical content.** Names are Inter sans. Page title is Instrument Serif. Italic Instrument Serif is reserved for annotation callouts. Never JetBrains Mono as a blanket "dev" font.
+
+```html
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+```
 
 ---
 
@@ -215,19 +226,125 @@ Universal building blocks. Type-specialized primitives (lifeline, activation bar
 
 Exact markup (background, dotted paper, markers, node box, arrow label, legend) and the long form of each connector rule: [`references/primitives-core.md`](references/primitives-core.md). The static templates (`template.html`, `template-dark.html`, `template-full.html`) already define the background and the `arrow`, `arrow-accent`, and `arrow-link` markers; `template-motion.html` defines only its own prefixed marker, so add the others from primitives-core.md when a motion diagram needs them.
 
-- **Arrows:** `muted` by default, `accent` for the headline path, `link` for HTTP/API and external calls, dashed `5,4` for optional, passive, return, or async. Draw arrows before boxes so lines sit behind nodes.
-- **Node box:** an opaque paper mask rect, then the styled box at `rx=6`, a rectangular type tag at `rx=2` (not a pill), the name in Geist 600, and a Geist Mono sublabel.
+**Default: clean paper, no dot pattern.** Single `<rect>` filled with `paper`. Don't wrap the diagram in a secondary container background — the diagram sits directly on the page.
+
+```svg
+<rect width="100%" height="100%" fill="#f5efe0"/>
+```
+
+**Optional: dotted paper variant.** When a long-form editorial diagram benefits from textured ground (essays, hero diagrams on a dedicated page), opt in by adding the `dots` pattern and a second rect:
+
+```svg
+<defs>
+  <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+    <circle cx="1" cy="1" r="0.9" fill="rgba(0,0,0,0.10)"/>
+  </pattern>
+</defs>
+<rect width="100%" height="100%" fill="#f5efe0"/>
+<rect width="100%" height="100%" fill="url(#dots)" opacity="0.6"/>
+```
+
+Don't use the dot pattern when the diagram sits inside a product page, slide, or card — the texture compounds with surrounding chrome and reads as noise.
+
+### Arrow markers (define all three, always)
+
+```svg
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+  <polygon points="0 0, 8 3, 0 6" fill="#6d6d6d"/>
+</marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+  <polygon points="0 0, 8 3, 0 6" fill="#cd2653"/>
+</marker>
+<marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+  <polygon points="0 0, 8 3, 0 6" fill="#9a3412"/>
+</marker>
+```
+
+| Arrow | Stroke | When |
+|---|---|---|
+| Default | muted `#6d6d6d` | Internal, generic |
+| Accent | coral `#cd2653` | Primary / highlighted / headline |
+| Link-blue | `#9a3412` | HTTP/API calls, external systems |
+| Dashed | `stroke-dasharray="5,4"` + any color | Optional, passive, return, async |
+
+**Draw arrows before boxes** so z-order puts lines behind nodes.
 
 ### Mandatory connector rules
 
 Non-negotiable, and §9 checks each one. Full text and edge cases: [primitives-core.md § Mandatory connector rules](references/primitives-core.md#mandatory-connector-rules).
 
-1. **Orthogonal only.** Connectors between off-axis nodes are rounded right-angle elbows at `r=8` (`r=6` minimum in tight layouts); a straight `<line>` only when both ends share x or y. Diagonals fail.
-2. **Label gap.** Every arrow label (14 characters max, all caps, centered on its segment) sits on an opaque mask with a visible 6 to 10px gap from its stroke, beside vertical segments, never on the line.
-3. **No overlaps.** No shared or stacked strokes: offset parallel routes by 12px or more, and use the bridge/hop at a single crossing.
-4. **Fan attach points.** Connectors on one box edge each get their own point at `L * k / (N + 1)`, 12px or more apart (8px on very small boxes).
-5. **No transit behind a non-endpoint box.** Reroute. Only when the box is geometrically unavoidable: dashed stroke (`4,3`), label at the visible end, no marker on the intervening box.
-6. **Mask before node.** A label mask must not overlap a node drawn after it; badge masks fully inside a node and masks over earlier zones are fine. From the installed skill directory, verify with `python3 scripts/verify_geometry.py <file>`.
+1. **Rounded right-angle (orthogonal) connectors are mandatory.** Never use diagonal `<line>` or straight slanted paths between nodes that don't share an x or y axis. Every bend must be a quarter-arc with `r=8` (or `r=6` minimum for tight layouts). See `references/type-architecture.md` for the elbow-path formula. Reserve plain straight `<line>` only for connections whose endpoints share the same x or y coordinate. Diagonal connectors are an automatic fail.
+
+2. **Label-to-connector margin: 6–10px gap, always.** A label must never sit *on* its arrow — the connector must remain visible. Place the label centered above (or beside, for vertical segments) the line with a **minimum 6px gap** between the bottom of the label's mask rect and the connector stroke. The opaque mask rect prevents the arrow from bleeding through, but the *visible* gap between mask edge and line preserves the reader's ability to trace the connection. If the label is large enough that 6px feels cramped, push it to 8–10px. Never let the mask rect touch or overlap the stroke.
+
+3. **No overlapping connectors.** Two connectors must never share the same stroke path, run parallel on top of each other, or be drawn on top of each other for any segment. When two orthogonal arrows must cross at a single point, apply the **bridge / hop** primitive (see `references/type-architecture.md` § Crossing arrows). When two arrows naturally want to overlap, offset their routing by ≥12px so each line is independently traceable. If you find yourself stacking connectors, redesign the layout — it means two nodes are too close, or the diagram is over budget (split into overview + detail).
+
+4. **Shared edge → fan the attach points.** When two or more connectors enter or exit the *same edge* of a box, each must have its own distinct attach point along that edge — **no two connectors may share a single point on a box**. Spread the attach points evenly along the edge with **≥12px** between adjacent points (8px minimum for very small boxes). Routing rules:
+   - For N connectors on an edge of length L, attach point `k` (1..N) sits at offset `L * k / (N + 1)` from the edge's leading corner.
+   - When the connectors fan out to destinations on different sides, route each one orthogonally from its own attach point — no merging strokes near the box.
+   - When two parallel connectors run in the same direction, keep them ≥12px apart along their entire length, not just at the attach point. Each arrow must remain independently traceable end-to-end.
+
+   No connector may hide another. If you can't tell two arrows apart at a glance, the layout has failed.
+
+5. **A connector must not pass behind a box that isn't its source or destination — except when the box is geometrically unavoidable on a direct orthogonal path.** Reroute around intervening boxes by default. The only legitimate exception is when a cross-cutting node (e.g., a footer service, a horizontal layer bar) physically sits between the connector's source and destination on the only straight path between them — for example, a `METRICS` arrow exiting an `Observability` footer bar and rising into a zone above must cross the `Active Directory` footer bar that sits between them. In that exception:
+   - The stroke must be **dashed** (e.g., `stroke-dasharray="4,3"`) to signal "transit, not interaction" — it tells the reader the intervening box is not an endpoint.
+   - The label sits at the **visible end** of the connector (typically near the source) so it doesn't fall behind the intervening box.
+   - No marker (arrowhead) may land on the intervening box's edge — the marker resolves at the true destination only.
+
+   When in doubt, reroute. The exception exists for the narrow case where rerouting is geometrically impossible, not as a shortcut to avoid layout work.
+
+6. **A label mask must not overlap a node drawn after it.** Rule 2 keeps the label off its own connector; this one keeps it off the boxes. Because nodes are painted after labels, a mask that lands partly inside a node is covered by the node fill and the text renders as a fragment sitting on the node border. Place the label on a segment of the connector that runs through open canvas — for a connector leaving a node's right edge, that means clearing the node's `x + width` before the mask starts. A mask fully *inside* a node is a badge chip and is fine; a mask overlapping a zone container is fine too, since zones are painted first. Verify with `python3 scripts/verify-geometry.py <file>`.
+
+### Node box — full pattern
+
+```svg
+<!-- 1. Opaque paper mask — prevents arrows bleeding through transparent fills -->
+<rect x="X" y="Y" width="W" height="H" rx="6" fill="#f5efe0"/>
+<!-- 2. Styled box -->
+<rect x="X" y="Y" width="W" height="H" rx="6" fill="FILL" stroke="STROKE" stroke-width="1"/>
+<!-- 3. Rectangular type tag (rx=2, NOT a pill) -->
+<rect x="X+8" y="Y+6" width="28" height="12" rx="2" fill="transparent" stroke="STROKE@0.40" stroke-width="0.8"/>
+<text x="X+22" y="Y+15" fill="STROKE@0.8" font-size="7" font-family="'Geist Mono', monospace"
+      text-anchor="middle" letter-spacing="0.08em">API</text>
+<!-- 4. Node name (Inter sans — human-readable) -->
+<text x="CX" y="CY+2" fill="#000000" font-size="12" font-weight="600"
+      font-family="'Inter', sans-serif" text-anchor="middle">Node Name</text>
+<!-- 5. Technical sublabel (Geist Mono) -->
+<text x="CX" y="CY+18" fill="#6d6d6d" font-size="9"
+      font-family="'Geist Mono', monospace" text-anchor="middle">tech:port</text>
+```
+
+### Arrow labels — always mask, always with margin
+
+Every arrow label needs an opaque rect behind it. Without one it bleeds through the line. **And the label must sit with a visible gap above the connector — never on top of it.**
+
+```svg
+<!-- Mask sits 14px above the arrow (8px text height + 6px gap). Stroke is at ARROW_Y. -->
+<rect x="MID_X-18" y="ARROW_Y-20" width="36" height="12" rx="2" fill="#f5efe0"/>
+<text x="MID_X" y="ARROW_Y-11" fill="#8c867e" font-size="8"
+      font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">WRITE</text>
+```
+
+Rules:
+
+- ≤14 characters, all-caps, centered on segment midpoint.
+- **Mandatory 6–10px gap** between the bottom of the mask rect and the arrow stroke. The connector must remain visible — a label that hides its own arrow is a hard fail.
+- Never `writing-mode` vertical.
+- For vertical segments, place the label to the side (not on the line) with the same 6–10px horizontal gap.
+
+### Legend — horizontal strip at the bottom
+
+**Never put the legend inside the diagram area.** Place as a horizontal strip after all nodes, with a hairline separator:
+
+```svg
+<line x1="30" y1="LEGEND_Y-8" x2="VIEWBOX_W-30" y2="LEGEND_Y-8"
+      stroke="rgba(0,0,0,0.10)" stroke-width="0.8"/>
+<text x="30" y="LEGEND_Y+8" fill="#6d6d6d" font-size="8" font-family="'Geist Mono', monospace"
+      letter-spacing="0.14em">LEGEND</text>
+<!-- Items — horizontal row, ~160px apart -->
+```
+
+Expand SVG `viewBox` height by ~60px.
 
 ---
 
@@ -290,13 +407,13 @@ Run before producing any diagram.
 - [ ] `<title>` is the first child of `<svg>` (before `<defs>`) and both `<title>` and `<desc>` are filled in?
 - [ ] `<title>` / `<desc>` IDs are prefixed for this diagram and variant — never bare `title` / `desc`?
 - [ ] Arrows drawn before boxes?
-- [ ] **§6 rule 1:** off-axis connectors are `r=8` elbows, no diagonal slants?
-- [ ] **§6 rule 2:** a visible 6 to 10px gap between every label mask and its connector?
-- [ ] **§6 rule 3:** no overlapping or stacked connectors; bridge/hop at crossings?
-- [ ] **§6 rule 4:** a distinct attach point per connector on a shared edge, 12px or more apart, none hiding another?
-- [ ] **§6 rule 5:** no transit behind a non-endpoint box, except the unavoidable case (dashed, label at the visible end)?
-- [ ] **§6 rule 6:** no label mask overlapping a node drawn after it? (From the installed skill directory, run `python3 scripts/verify_geometry.py <file>`.)
-- [ ] Every arrow label has an opaque `fill="{paper}"` rect behind it?
+- [ ] **Every connector between off-axis nodes uses a rounded right-angle elbow (`r=8`)? No diagonal `<line>` slants?**
+- [ ] **Every arrow label has a visible 6–10px gap above its connector? (Mask rect not touching the stroke.)**
+- [ ] **No two connectors overlap, share a stroke path, or run on top of each other? Crossings use the bridge/hop primitive?**
+- [ ] **When several connectors enter or exit the same edge of a box, each has its own attach point (≥12px apart)? No connector hides another?**
+- [ ] **No connector passes behind a non-endpoint box, except the unavoidable-intervening-box case (§6 rule 5) — and in that case, the stroke is dashed and the label sits at the visible end?**
+- [ ] **No label mask overlaps a node drawn after it? (Node fill would clip the text — §6 rule 6. In this repository, `python3 scripts/verify-geometry.py <file>`.)**
+- [ ] Every arrow label has an opaque `fill="#f5efe0"` rect behind it?
 - [ ] Legend is a horizontal bottom strip, not floating?
 - [ ] No vertical `writing-mode` text?
 - [ ] `viewBox` expanded for the legend strip (~60px)?
@@ -308,7 +425,7 @@ Run before producing any diagram.
 **Typography:**
 
 - [ ] Brand match uses exact public families/weights, verified via `getComputedStyle`; fallbacks disclosed?
-- [ ] Human-readable names in Geist sans, not Geist Mono?
+- [ ] Human-readable names in Inter sans, not Geist Mono?
 - [ ] Technical sublabels (ports, commands, URLs) in Geist Mono?
 - [ ] Page title in Instrument Serif?
 - [ ] Annotation callouts (if any) in *italic* Instrument Serif? (see [primitive-annotation.md](references/primitive-annotation.md))
